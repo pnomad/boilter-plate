@@ -53,6 +53,51 @@
 -만들어진 라우터를 테스트하기 위해서는 포스트맨으로 해당 주소에 정보를 전해준다.
 -정보는 Body-raw-JSON 형식으로 전달한다.
 
+#nodemon 설치
+-서버를 재시작하지 않아도 수정된 소스를 반영
+-npm install nodemon --save-dev
+-노드몬을 사용하는 스크립트를 package.json에 작성한다.
+
+#소스 속 비밀정보 관리
+-몽고디비 연결에서 id, 비번을 깃헙에 올리면 위험하다.
+-config 폴더를 만들고 dev.js 파일을 만든다.
+-개발하는 경우와 배포한 후의 경우에서 비밀정보 관리는 다르다.
+-배포 후에는 배포사이트(헤로쿠)에서 정보를 관리해야한다.
+-config에 prod.js, key.js를 만든다.
+-이후 .gitignore에 dev.js 작성
+
+#Bcrypt로 암호화 하기
+-비밀번호를 암호화해서 데이터베이스에 올려야 관리자도 개인의 비밀번호를 모른다.
+-npm install bcrypt --save
+-register 라우터에 정보를 저장하기 전에 비번을 암호화한다.
+-그러기 위해서 User.js에서 userSchema.pre('save', 함수)를 만든다.
+-next에 정보가 담겨서 다시 index의 register라우터의 다음 순서가 진행된다.
+-비크립트는 솔트를 만들고 그것을 이용해서 이용해서 비밀번호를 암호화시킨다. 
+
+#로그인 기능 만들기
+-로그인 라우터를 만든다.
+-DB에 해당 이메일이 있는지 찾고 비번이 같은지 확인하고 토큰을 생성한다.
+-찾을때는 몽고디비 메소드인 findOne 사용
+-comparePassword 메소드를 User모델에서 만들어서 비교
+-암호화된 번호를 복호화할 수 없기 때문에 입력된 비번을 비크립트로 암호화해서 비교한다.(compare함수 사용)
+-비밀번호가 같으면 토큰을 생성해준다.
+-npm install jsonwebtoken --save
+-User모델에 generateToken 메소드를 만든다. (jsonwebtoken을 활용)
+-jwt의 sign메소드를 이용해서 id와 특정 string을 합쳐서 토큰이 만들어진다.
+-생성된 토큰은 브라우저의 쿠키에 저장한다.
+-npm install cookie-parser --save
+
+#Auth 기능
+-토큰을 유저 정보(DB)에 넣고 쿠키에도 넣었었다.
+-쿠키를 디코드해서 id를 만들어서 DB에서 확인해서 auth를 처리
+-라우터 작성, auth라는 middleware를 만들어준다.
+-middleware폴더를 만들고 auth.js파일을 만든다. 인증처리는 여기서 진행된다.
+-User모델에서 auth.js에서 사용할 findByToken 메소드를 만들어준다.
+
+#로그아웃
+-토큰을 지워주면 된다. 
+-토큰을 지우면 auth기능에서 토큰이 없다고 체크하기 때문에 인증이 안돼서 로그아웃 된다.
+-라우터를 만든다. 역시 미들웨어로 auth 넣는다.
 
 
 
